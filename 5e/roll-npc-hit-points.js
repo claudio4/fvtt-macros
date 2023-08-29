@@ -1,4 +1,7 @@
 // Recommended icon icons/magic/life/heart-glowing-red.webp
+// This macro rolls the actors hp formula of each selected token and sets the token's hp to the result.
+// If a token has no hp formula, it is silently ignored.
+
 canvas.tokens.controlled.map(async (token) => {
   let actor = token.actor
   if (actor.type !== "npc") {

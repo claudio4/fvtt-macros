@@ -1,4 +1,6 @@
 // Recommended icon icons/tools/hand/ruler-steel-grey.webp
+// This macro toggles the visibility of the DM ruler for the rest of the players. This is useful as the ruler is shown
+// by default to all players even when using it under the fog of war.
 
 let settings = duplicate(game.settings.get("core", "permissions"));
 

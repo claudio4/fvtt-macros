@@ -1,4 +1,5 @@
 // Recommended icon icons/magic/control/fear-fright-white.webp
+// This macro helps to quickly change the image of a token.
 
 if (canvas.tokens.controlled.length === 0) {
   ui.notifications.error("Please select a token");

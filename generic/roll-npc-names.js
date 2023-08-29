@@ -1,4 +1,6 @@
 // Recommended icon icons/sundries/misc/pet-collar-red.webp
+// This macro prompts the user to select a roll table in the "Names" folder (this folder needs to be manually created)
+// and then rolls on it for each selected token, setting the token's name to the result.
 
 const tables = game.tables.folders.find(f => f.name === "Names");
 if (!tables) {

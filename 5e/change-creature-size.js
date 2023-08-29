@@ -1,4 +1,5 @@
 // Recommended icon icons/magic/control/silhouette-grow-shrink-tan.webp
+// This macro will change the size of the selected token's sheet and resize the token to match its new size.
 
 const tokens = canvas.tokens.controlled;
 if (tokens.length === 0) {

@@ -1,4 +1,6 @@
 // Recommended icon icons/containers/bags/case-leather-tan.webp
+// This macro sorts alphabetically the items (spells, feautures, inventory) of the actor whose sheet is in focus.
+
 (() => {
   // Code from https://github.com/illandril/FoundryVTT-inventory-sorter
   const compareStringCaseInsensitive = (strA, strB) =>
