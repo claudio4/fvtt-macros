@@ -1,0 +1,45 @@
+{
+  "id": "claudio4-macros",
+  "title": "Claudio4's useful macros",
+  "description": "Provides some useful macros for the game.",
+  "authors": [
+    {
+      "name": "Claudio4",
+      "url": "https://claudio4.com"
+    }
+  ],
+  "version": "0.0.0",
+  "compatibility": {
+    "minimum": "10",
+    "verified": "11",
+    "maximum": "11"
+  },
+  "url": "This is auto replaced",
+  "manifest": "This is auto replaced",
+  "download": "This is auto replaced",
+  "license": "LICENSE",
+  "readme": "README.md",
+  "packs": [
+    {
+      "name": "generic",
+      "label": "Claudio4's macros - generic",
+      "path": "packs/generic",
+      "type": "Macro",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
+    },
+    {
+      "name": "5e",
+      "label": "Claudio4's macros - DnD 5e",
+      "path": "packs/5e",
+      "type": "Macro",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      },
+      "system": "dnd5e"
+    }
+  ]
+}
