@@ -22,7 +22,7 @@
   "packs": [
     {
       "name": "generic",
-      "label": "Claudio4's macros - generic",
+      "label": "Claudio4's macros - Generic",
       "path": "packs/generic",
       "type": "Macro",
       "ownership": {
