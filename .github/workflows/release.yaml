@@ -34,6 +34,8 @@ jobs:
     - name: build packs
       run: npm run build
 
+    - name: Create dist folder
+      run: mkdir dist
     - name: Copy files to dist
       run: cp -R module.json README.md LICENSE packs dist
     # Create a zip file with all files required by the module to add to the release
