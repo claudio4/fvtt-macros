@@ -21,8 +21,8 @@
   "readme": "README.md",
   "packs": [
     {
-      "name": "generic",
-      "label": "Claudio4's macros - Generic",
+      "name": "cl4-generic",
+      "label": "Cl4 - Generic",
       "path": "packs/generic",
       "type": "Macro",
       "ownership": {
@@ -31,8 +31,8 @@
       }
     },
     {
-      "name": "5e",
-      "label": "Claudio4's macros - DnD 5e",
+      "name": "cl4-5e",
+      "label": "Cl4 - DnD 5e",
       "path": "packs/5e",
       "type": "Macro",
       "ownership": {
@@ -40,6 +40,13 @@
         "ASSISTANT": "OWNER"
       },
       "system": "dnd5e"
+    }
+  ],
+  "packFolders": [
+    {
+      "name": "Claudio4's macros",
+      "sorting": "a",
+      "packs": ["cl4-generic", "cl4-5e"]
     }
   ]
 }
