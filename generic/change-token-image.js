@@ -11,6 +11,6 @@ new FilePicker({
   type: "image",
   current: token.document.texture.src,
   callback: (path) => {
-      token.document.update({img: path})
-  }
-}).browse()
+    token.document.update({ img: path });
+  },
+}).browse();

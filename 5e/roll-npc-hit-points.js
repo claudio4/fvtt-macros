@@ -3,19 +3,19 @@
 // If a token has no hp formula, it is silently ignored.
 
 canvas.tokens.controlled.map(async (token) => {
-  let actor = token.actor
+  let actor = token.actor;
   if (actor.type !== "npc") {
-    return
+    return;
   }
 
-  let formula = token.actor?.system?.attributes?.hp?.formula
+  let formula = token.actor?.system?.attributes?.hp?.formula;
   if (!formula) {
-    return
+    return;
   }
 
-  let roll = await (new Roll(formula).evaluate({ async: true }))
-  roll.toMessage({ flavor: 'Rolling ' + token.name + ' max HP' })
-  let hp = roll.total
+  let roll = await new Roll(formula).evaluate({ async: true });
+  roll.toMessage({ flavor: "Rolling " + token.name + " max HP" });
+  let hp = roll.total;
 
-  return actor.update({ "system.attributes.hp.value": hp, "system.attributes.hp.max": hp })
-})
+  return actor.update({ "system.attributes.hp.value": hp, "system.attributes.hp.max": hp });
+});

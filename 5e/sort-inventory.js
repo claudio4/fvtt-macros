@@ -1,110 +1,111 @@
 // Recommended icon icons/containers/bags/case-leather-tan.webp
-// This macro sorts alphabetically the items (spells, feautures, inventory) of the actor whose sheet is in focus.
+// This macro sorts alphabetically the items (spells, features, inventory) of the actor whose sheet is in focus.
 
 (() => {
   // Code from https://github.com/illandril/FoundryVTT-inventory-sorter
-  const compareStringCaseInsensitive = (strA, strB) =>
-    strA.localeCompare(strB, undefined, { sensitivity: "base" })
+  const compareStringCaseInsensitive = (strA, strB) => strA.localeCompare(strB, undefined, { sensitivity: "base" });
 
   const compareItemToSort = (itemA, itemB) => {
-    let compare = compareStringCaseInsensitive(itemA.group, itemB.group)
+    let compare = compareStringCaseInsensitive(itemA.group, itemB.group);
     if (compare === 0) {
-      compare = compareStringCaseInsensitive(itemA.name, itemB.name)
+      compare = compareStringCaseInsensitive(itemA.name, itemB.name);
     }
-    return compare
-  }
+    return compare;
+  };
 
-  const getSpellSubtype = system => {
-    const prepMode = system.preparation?.mode
-    let subtype
+  const getSpellSubtype = (system) => {
+    const prepMode = system.preparation?.mode;
+    let subtype;
     if (prepMode === "atwill" || prepMode === "innate" || prepMode === "pact") {
-      subtype = prepMode
+      subtype = prepMode;
     } else {
-      subtype = `${system.level || 0}`
+      subtype = `${system.level || 0}`;
     }
-    return subtype
-  }
+    return subtype;
+  };
 
-  const getFeatSubtype = system => {
-    let subtype
+  const getFeatSubtype = (system) => {
+    let subtype;
     if (!system.activation || !system.activation.type) {
       // Passive feats
-      subtype = "passive"
+      subtype = "passive";
     } else {
       // Active feats
-      subtype = "active"
+      subtype = "active";
     }
-    return subtype
-  }
+    return subtype;
+  };
 
-  const extractSortInformation = items => {
+  const extractSortInformation = (items) => {
     if (!items) {
-      return []
+      return [];
     }
-    const unsortedItems = items.map(item => {
-      const type = item.type
-      const name = item.name
-      let subtype
+    const unsortedItems = items.map((item) => {
+      const type = item.type;
+      const name = item.name;
+      let subtype;
       if (type === "spell") {
-        subtype = getSpellSubtype(item.system)
+        subtype = getSpellSubtype(item.system);
       } else if (type === "feat") {
-        subtype = getFeatSubtype(item.system)
+        subtype = getFeatSubtype(item.system);
       }
       return {
         id: item.id,
         group: subtype ? `${type}_${subtype}` : type,
-        name: name
-      }
-    })
+        name: name,
+      };
+    });
 
-    return unsortedItems.sort(compareItemToSort)
-  }
+    return unsortedItems.sort(compareItemToSort);
+  };
 
-  const calculateItemSorts = actor => {
-    const itemSorts = new Map()
+  const calculateItemSorts = (actor) => {
+    const itemSorts = new Map();
     if (actor) {
-      const sortedItems = extractSortInformation(actor.items)
-      let nextSort = 0
-      let lastGroup = null
+      const sortedItems = extractSortInformation(actor.items);
+      let nextSort = 0;
+      let lastGroup = null;
       for (const item of sortedItems) {
         if (item.group !== lastGroup) {
-          nextSort = 0
-          lastGroup = item.group
+          nextSort = 0;
+          lastGroup = item.group;
         }
-        nextSort++
+        nextSort++;
 
-        const newSort = nextSort * foundry.CONST.SORT_INTEGER_DENSITY
-        itemSorts.set(item.id, { _id: item.id, sort: newSort })
+        const newSort = nextSort * foundry.CONST.SORT_INTEGER_DENSITY;
+        itemSorts.set(item.id, { _id: item.id, sort: newSort });
       }
     }
-    return itemSorts
-  }
+    return itemSorts;
+  };
 
-  const sortActorItems = async actor => {
-    const itemSorts = calculateItemSorts(actor)
-    const itemUpdates = []
+  const sortActorItems = async (actor) => {
+    const itemSorts = calculateItemSorts(actor);
+    const itemUpdates = [];
     for (const itemSort of itemSorts.values()) {
-      const item = actor.items.get(itemSort._id)
+      const item = actor.items.get(itemSort._id);
       if (item.sort !== itemSort.sort) {
-        itemUpdates.push(itemSort)
+        itemUpdates.push(itemSort);
       }
     }
     if (itemUpdates.length > 0) {
       try {
         await actor.updateEmbeddedDocuments("Item", itemUpdates, {
-          illandrilInventorySorterUpdate: true
-        })
+          illandrilInventorySorterUpdate: true,
+        });
       } catch (error) {
-        ui.notifications.error("Error sorting actor's items. Please check the console")
-        console.error("Error sorting items for actor", actor, error)
+        ui.notifications.error("Error sorting actor's items. Please check the console");
+        console.error("Error sorting items for actor", actor, error);
       }
     }
-  }
+  };
 
   if (!(ui.activeWindow instanceof ActorSheet)) {
-    ui.notifications.error("Sort operation failed. No actor sheet in focus")
-    return
+    ui.notifications.error("Sort operation failed. No actor sheet in focus");
+    return;
   }
-  const actor = ui.activeWindow.actor
-  sortActorItems(actor).then(() => { ui.notifications.info(`Successfully sorted ${actor.name}'s inventory`) })
-})()
+  const actor = ui.activeWindow.actor;
+  sortActorItems(actor).then(() => {
+    ui.notifications.info(`Successfully sorted ${actor.name}'s inventory`);
+  });
+})();
