@@ -53,7 +53,7 @@ async function createPack(pack, macros) {
 await fs.mkdir(path.join(__dirname, "..", "packs"), { recursive: true });
 
 const mod = JSON.parse(await fs.readFile(path.join(__dirname, "..", "module.json")));
-const packs = mod.packs.map((pack) => pack.name);
+const packs = mod.packs.map((pack) => pack.name.replace("cl4-", ""));
 
 for (const pack of packs) {
   filesToMacros(pack)
