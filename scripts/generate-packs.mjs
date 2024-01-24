@@ -27,6 +27,7 @@ async function filesToMacros(directory) {
       name,
       img: icon,
       author: "Lcb3Tp0080WA9XUU", // This irrelevant but required.
+      ownership: { default: 2 },
       type: "script",
       scope: "global",
       command: lines.slice(1).join("\n"),
