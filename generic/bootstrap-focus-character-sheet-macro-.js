@@ -48,9 +48,62 @@ if (!actor) {
   return;
 }
 
-const macroName = `Focus ${ actor.name + (actor.name.toLowerCase().endsWith('s') ? "'" : "'s") } Character Sheet`;
+const prevMacro = game.macros.find(macro => (
+  macro.data.flags?.["claudio4-macros"]?.["focus-macro-for=actor"] === actor.uuid
+  && (macro.ownership[game.userId] >= 2 || macro.ownership.default >= 2)
+  ));
+if (prevMacro) {
+  const dialogResult = await new Promise((resolve) => {
+    new Dialog({
+      title: "Macro already exists",
+      content: `
+        <div>
+          <p>A macro for this actor already exists. What would you like to do?</p>
+        </div>
+      `,
+      buttons: {
+        NewMacro: {
+          icon: '<i class="fas fa-plus"></i>',
+          label: "Create new macro anyway",
+          callback: () => resolve("new")
+        },
+        AddToMacroBar: {
+          icon: '<i class="fas fa-plus-square"></i>',
+          label: "Add the existing macro to the macro bar.",
+          callback: () => resolve("add")
+        },
+        Cancel: {
+          icon: '<i class="fas fa-times"></i>',
+          label: "Cancel the creation of the new macro",
+          callback: () => resolve("cancel")
+        }
+      },
+      close: () => resolve("cancel"),
+      default: "AddToMacroBar"
+    }).render(true);
+  });
+
+  if (dialogResult === "cancel") {
+    return;
+  }
+  if (dialogResult === "add") {
+    const slot = findEmptySlotInMacroBard(prevMacro.id);
+    if (slot === null) {
+      ui.notifications.warn(`The macro bar if full! Macro "${prevMacro.name}" can be found in the macro directory.`);
+      return;
+    }
+
+    game.user.assignHotbarMacro(prevMacro, slot);
+    const displaySlot = slot === 10 ? "0" : slot;
+    ui.notifications.info(`Macro "${prevMacro.name}" can be found in slot ${displaySlot} of the macro bard.`);
+    return;
+  }
+}
+
+const macroName = `Focus ${actor.name + (actor.name.toLowerCase().endsWith('s') ? "'" : "'s")} Character Sheet`;
 const macroTemplate = {
   name: macroName,
+  flags: { "claudio4-macros": { "focus-macro-for=actor": actor.uuid } },
   scope: "global",
   img: "icons/sundries/documents/document-official-capital.webp",
   type: "script",
@@ -87,7 +140,7 @@ try {
     return;
   }
 
-  game.user.assignHotbarMacro(macro, slot);  
+  game.user.assignHotbarMacro(macro, slot);
   const displaySlot = slot === 10 ? "0" : slot;
   ui.notifications.info(`Macro "${macroName}" created. It can be found in slot ${displaySlot} of the macro bard.`);
   return;
@@ -96,10 +149,14 @@ try {
   throw error;
 }
 
-function findEmptySlotInMacroBard() {
+function findEmptySlotInMacroBard(macroToPlaceId) {
   for (let i = 1; i <= 10; i++) {
     const macroId = game.user.hotbar[i];
     if (!macroId) {
+      return i;
+    }
+
+    if (macroToPlaceId && macroId === macroToPlaceId) {
       return i;
     }
 
