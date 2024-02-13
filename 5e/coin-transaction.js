@@ -199,14 +199,15 @@ function denormalizeCoins(coins) {
   return { pp, gp, sp, cp };
 }
 
-// From https://stackoverflow.com/a/2276173 
-function evalArithmetic(s) {
+
+function evalArithmetic(input) {
   let total = 0;
-  s = s.match(/[+\-]*(\.\d+|\d+(\.\d+)?)/g) || [];
+  const terms = input.replace(/\s/g, "").match(/[+\-]?\d+/g) || [];
       
-  while (s.length) {
-    total += parseInt(s.shift());
+  for (const term of terms) {
+    total += parseInt(term);
   }
+
   return total;
 }
 
