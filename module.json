@@ -40,13 +40,23 @@
         "ASSISTANT": "OWNER"
       },
       "system": "dnd5e"
+    },
+    {
+      "name": "cl4-name-tables",
+      "label": "Cl4 - Name tables",
+      "path": "packs/name-tables",
+      "type": "RollTable",
+      "ownership": {
+        "PLAYER": "OBSERVER",
+        "ASSISTANT": "OWNER"
+      }
     }
   ],
   "packFolders": [
     {
       "name": "Claudio4's macros",
       "sorting": "a",
-      "packs": ["cl4-generic", "cl4-5e"]
+      "packs": ["cl4-generic", "cl4-5e", "cl4-name-tables"]
     }
   ]
 }

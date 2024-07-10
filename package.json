@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "",
   "scripts": {
-    "build": "node scripts/generate-packs.mjs"
+    "build": "node scripts/generate-macro-packs.mjs && node scripts/generate-names-pack.mjs"
   },
   "keywords": [],
   "author": "Claudio Yanes <me@claudio4.com>",

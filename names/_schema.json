@@ -1,0 +1,34 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Language Rollable Table",
+  "type": "object",
+  "properties": {
+    "title": {
+      "description": "The name of the rollable table",
+      "type": "string"
+    },
+    "values": {
+      "description": "The possible values of the rollable table. If an object is given the keys will be treated as variants (ex. male and female) and a subtable will be created for each vairant.",
+      "oneOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "description": "A name to be included in the table."
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "description": "A name to be included in the table."
+            }
+          }
+        }
+      ]
+    }
+  },
+  "required": ["title", "values"]
+}

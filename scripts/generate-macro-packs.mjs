@@ -1,9 +1,9 @@
-import { ClassicLevel } from "classic-level";
 import path from "path";
 import fs from "fs/promises";
-import crypto from "crypto";
+import { applyOpsToDb, generateID } from "./shared.mjs";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
+const baseDir = path.dirname(__dirname);
 
 /**
  * Reads JavaScript files from a specified directory and returns an array of macro objects.
@@ -12,15 +12,15 @@ const __dirname = path.dirname(new URL(import.meta.url).pathname);
  * @returns {Promise<Array>} - A promise that resolves to an array of macro objects.
  */
 async function filesToMacros(directory) {
-  const files = (await fs.readdir(path.join(__dirname, "..", directory))).filter((file) => file.endsWith(".js"));
-  const macros = files.map(async (file) => {
-    const content = await fs.readFile(path.join(__dirname, "..", directory, file), "utf8");
+  const files = (await fs.readdir(directory)).filter((file) => file.endsWith(".js"));
+  const macros = files.map(async (filename) => {
+    const content = await fs.readFile(path.join(directory, filename), "utf8");
     const lines = content.split("\n");
     const icon = lines[0].split(" ").pop();
     // Transform file-name.js to File Name.
-    const name = file.charAt(0).toUpperCase() + file.slice(1).split(".")[0].replaceAll("-", " ");
+    const name = filename.charAt(0).toUpperCase() + filename.slice(1).split(".")[0].replaceAll("-", " ");
     // generate id from hash to keep it consistent between executions.
-    const id = crypto.createHash("sha1").update(file).digest("hex").slice(0, 16);
+    const id = generateID(filename);
 
     return {
       _id: id,
@@ -44,20 +44,19 @@ async function filesToMacros(directory) {
  * @returns {Promise} A promise that resolves when the database has been wrote and closed.
  */
 async function createPack(pack, macros) {
-  const db = new ClassicLevel(path.join(__dirname, "..", "packs", pack), { valueEncoding: "json" });
+  const dbPath = path.join(baseDir, "packs", pack);
   const operations = macros.map((macro) => ({ type: "put", key: `!macros!${macro._id}`, value: macro }));
-  await db.batch(operations);
-  return db.close();
+  return applyOpsToDb(dbPath, operations);
 }
 
 // Create packs directory if it doesn't exist
 await fs.mkdir(path.join(__dirname, "..", "packs"), { recursive: true });
 
 const mod = JSON.parse(await fs.readFile(path.join(__dirname, "..", "module.json")));
-const packs = mod.packs.map((pack) => pack.name.replace("cl4-", ""));
+const packs = mod.packs.filter((pack) => pack.type === "Macro").map((pack) => pack.name.replace("cl4-", ""));
 
 for (const pack of packs) {
-  filesToMacros(pack)
+  filesToMacros(path.join(baseDir, pack))
     .then((macros) => createPack(pack, macros))
     .catch((err) => console.error(err));
 }
