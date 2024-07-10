@@ -1,26 +1,48 @@
 // Recommended icon icons/sundries/misc/pet-collar-red.webp
-// This macro prompts the user to select a roll table in the "Names" folder (this folder needs to be manually created)
+// This macro prompts the user to select a roll table in the "Names" folder (this folder needs to be manually created) or from the modules included tables
 // and then rolls on it for each selected token, setting the token's name to the result.
 
 const tables = game.tables.folders.find((f) => f.name === "Names");
+const packTables = game.packs.get("claudio4-macros.cl4-name-tables")?.index;
 if (!tables) {
-  ui.notifications.error("Could not find the 'Names' folder in the Rollable Tables directory.");
-  return;
+  if (!packTables) {
+    ui.notifications.error("Could not find the 'Names' folder in the Rollable Tables directory.");
+    return;
+  }
+  ui.notifications.info("No custom name tables have been found. You can add your creating a 'Names' folder in the Rollable Tables directory.");
 }
-if (tables.contents.length === 0) {
-  ui.notifications.error("The 'Names' folder has no Rollable Tables in it.");
+
+if ((!tables || tables.contents.length === 0) && !packTables) {
+  ui.notifications.error("If the companion module is not enabled, you need to add Rollable Tables to the 'Names' folder.");
   return;
 }
 
 let table;
 try {
   table = await new Promise((resolve, reject) => {
+    let submitted = false;
     let content = `<form>
             <div class="form-group">
                 <label>Select a table:</label>
                 <select id="table-select" name="table-select">`;
-    for (const table of tables.contents) {
-      content += `<option value="${table.id}">${table.name}</option>`;
+    if (tables && tables.contents.length !== 0) {
+      content += '<optgroup label="World Name Tables">'
+      for (const table of tables.contents) {
+        content += `<option value="${table.uuid}">${table.name}</option>`;
+      }
+      content += '</optgroup>'
+    }
+    if (packTables) {
+      content += '<optgroup label="Module Name Tables">'
+      for (const table of packTables.filter(({ folder }) => !folder)) {
+        content += `<option value="${table.uuid}">${table.name}</option>`;
+      }
+      content += '</optgroup>'
+      content += '<optgroup label="Module Variant Name Tables">'
+      for (const table of packTables.filter(({ folder }) => folder)) {
+        content += `<option value="${table.uuid}">${table.name}</option>`;
+      }
+      content += '</optgroup>'
     }
     content += "</select></div></form>";
     const d = new Dialog({
@@ -31,18 +53,24 @@ try {
           icon: '<i class="fas fa-check"></i>',
           label: "Confirm",
           callback: (html) => {
-            const table = game.tables.get(html.find("#table-select").val());
-            resolve(table);
+            submitted = true;
+            const tableUuid = html.find("#table-select").val();
+            fromUuid(tableUuid).then(resolve).catch(reject);
           },
         },
       },
       default: "ok",
-      close: reject,
+      close: () => { if (!submitted) reject(); },
     });
     d.render(true);
   });
 } catch (e) {
-  ui.notifications.warn("No table selected. Operation cancelled.");
+  if (e instanceof Error) {
+    ui.notifications.error("There was an error with the table selection. Check the console for details.");
+    console.error(e);
+  } else {
+    ui.notifications.warn("No table selected. Operation cancelled.");
+  }
   return;
 }
 
@@ -54,7 +82,7 @@ if (!table) {
 const usedNames = new Set();
 const updates = canvas.tokens.controlled.map(async (token) => {
   let name;
-  for (;;) {
+  for (; ;) {
     name = (await table.roll()).results?.[0]?.text;
     if (!name) {
       return { _id: token.id };
