@@ -20,6 +20,7 @@ if ((!tables || tables.contents.length === 0) && !packTables) {
 let table;
 try {
   table = await new Promise((resolve, reject) => {
+    const compareByName = (a, b) => a.name.localeCompare(b.name);
     let submitted = false;
     let content = `<form>
             <div class="form-group">
@@ -27,19 +28,22 @@ try {
                 <select id="table-select" name="table-select">`;
     if (tables && tables.contents.length !== 0) {
       content += '<optgroup label="World Name Tables">'
-      for (const table of tables.contents) {
+      const localTables = [...tables.contents].sort(compareByName);
+      for (const table of localTables) {
         content += `<option value="${table.uuid}">${table.name}</option>`;
       }
       content += '</optgroup>'
     }
     if (packTables) {
       content += '<optgroup label="Module Name Tables">'
-      for (const table of packTables.filter(({ folder }) => !folder)) {
+      const corePackTables = [...packTables.filter(({ folder }) => !folder)].sort(compareByName);
+      for (const table of corePackTables) {
         content += `<option value="${table.uuid}">${table.name}</option>`;
       }
       content += '</optgroup>'
       content += '<optgroup label="Module Variant Name Tables">'
-      for (const table of packTables.filter(({ folder }) => folder)) {
+      const variantPackTables = [...packTables.filter(({ folder }) => folder)].sort(compareByName);
+      for (const table of variantPackTables) {
         content += `<option value="${table.uuid}">${table.name}</option>`;
       }
       content += '</optgroup>'
@@ -79,6 +83,10 @@ if (!table) {
   return;
 }
 
+if (canvas.tokens.controlled?.length === 0) {
+  ui.notifications.error("No tokens selected. Operation cancelled.");
+  return;
+}
 const usedNames = new Set();
 const updates = canvas.tokens.controlled.map(async (token) => {
   let name;
