@@ -28,8 +28,9 @@ async function readFiles(directory) {
 
 /**
  * @param {Promise<LanguageRollableTable>} fileContents
+ * @param {string} folderForVariants - The ID of the folder to store variant tables.
  */
-async function processFile(fileContents) {
+async function processFile(fileContents, folderForVariants = null) {
   const tableData = await fileContents;
   if (Array.isArray(tableData.values)) {
     return mapTableDataToSingleRollableTable(tableData);
@@ -38,7 +39,7 @@ async function processFile(fileContents) {
   const id = generateID(tableData.title);
   const variants = Object.entries(tableData.values);
   const subOps = variants.map(([title, values]) =>
-    mapTableDataToSingleRollableTable({ title: `${tableData.title} - ${title}`, values }),
+    mapTableDataToSingleRollableTable({ title: `${tableData.title} - ${title}`, values }, folderForVariants),
   );
 
   const subTables = subOps.map((ops) => ops.at(-1).value);
@@ -155,9 +156,33 @@ function mapNamesToTableResults(tableId, names) {
   });
 }
 
+function addFolder(name, parent = null) {
+  const id = generateID(name);
+  return {
+    type: "put",
+    key: `!folders!${id}`,
+    value: {
+      name,
+      sorting: "a",
+      folder: parent,
+      type: "RollTable",
+      _id: id,
+      sort: 0,
+      color: null,
+    },
+  };
+}
+
+async function main(baseDirectory) {
+  const namesDirectory = path.join(baseDirectory, "names");
+
+  const filesPromises = await readFiles(namesDirectory);
+  const variantsFolder = addFolder("Variants");
+  const opsPromises = filesPromises.map((p) => processFile(p, variantsFolder.value._id));
+  const ops = (await Promise.all(opsPromises)).flat(1);
+  ops.push(variantsFolder);
+  applyOpsToDb(path.join(baseDirectory, "packs", "name-tables"), ops);
+}
+
 const baseDirectory = path.dirname(__dirname);
-const namesDirectory = path.join(baseDirectory, "names");
-const filesPromises = await readFiles(namesDirectory);
-const opsPromises = filesPromises.map(processFile);
-const ops = (await Promise.all(opsPromises)).flat(1);
-applyOpsToDb(path.join(baseDirectory, "packs", "name-tables"), ops);
+main(baseDirectory);
