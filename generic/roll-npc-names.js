@@ -9,11 +9,11 @@ if (!tables) {
     ui.notifications.error("Could not find the 'Names' folder in the Rollable Tables directory.");
     return;
   }
-  ui.notifications.info("No custom name tables have been found. You can add your creating a 'Names' folder in the Rollable Tables directory.");
+  ui.notifications.info("Custom name tables have not been detected. You can create your own by creating a 'Names' folder within the Rollable Tables directory and then adding your custom table to this folder.");
 }
 
 if ((!tables || tables.contents.length === 0) && !packTables) {
-  ui.notifications.error("If the companion module is not enabled, you need to add Rollable Tables to the 'Names' folder.");
+  ui.notifications.error("If the companion module is disabled, you need to add Rollable Tables to the 'Names' folder.");
   return;
 }
 
