@@ -49,7 +49,7 @@ if (!actor) {
 }
 
 const prevMacro = game.macros.find(macro => (
-  macro.data.flags?.["claudio4-macros"]?.["focus-macro-for=actor"] === actor.uuid
+  macro.flags?.["claudio4-macros"]?.["focus-macro-for=actor"] === actor.uuid
   && (macro.ownership[game.userId] >= 2 || macro.ownership.default >= 2)
   ));
 if (prevMacro) {
