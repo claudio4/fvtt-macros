@@ -4,6 +4,7 @@ import { applyOpsToDb, generateID } from "./shared.mjs";
 
 const __dirname = path.dirname(new URL(import.meta.url).pathname);
 const baseDir = path.dirname(__dirname);
+const extraOptionsPrefix = "//! ";
 
 /**
  * Reads JavaScript files from a specified directory and returns an array of macro objects.
@@ -17,6 +18,13 @@ async function filesToMacros(directory) {
     const content = await fs.readFile(path.join(directory, filename), "utf8");
     const lines = content.split("\n");
     const icon = lines[0].split(" ").pop();
+    let linesToskip = 1;
+    let extraOptions;
+
+    if (lines.length > 2 && lines[1].startsWith(extraOptionsPrefix)) {
+      linesToskip++;
+      extraOptions = JSON.parse(lines[1].substring(extraOptionsPrefix.length));
+    }
     // Transform file-name.js to File Name.
     const name = filename.charAt(0).toUpperCase() + filename.slice(1).split(".")[0].replaceAll("-", " ");
     // generate id from hash to keep it consistent between executions.
@@ -30,7 +38,8 @@ async function filesToMacros(directory) {
       ownership: { default: 2 },
       type: "script",
       scope: "global",
-      command: lines.slice(1).join("\n"),
+      command: lines.slice(linesToskip).join("\n"),
+      ...extraOptions,
     };
   });
 
